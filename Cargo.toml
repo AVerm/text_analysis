@@ -1,0 +1,9 @@
+[package]
+name = "text_analysis"
+version = "0.1.0"
+authors = ["Alex Vermillion <ajvermillion99@gmail.com>"]
+
+description = "Runs some simple statistics on an SMS XML file"
+license = "GPL-3.0"
+
+[dependencies]
