@@ -16,7 +16,7 @@ pub struct Message<'a> {
     locked: bool,
 }
 
-/// Turns an xml line into a SMS::Message struct, assuming the fields go in a certain order
+/// Turns an xml line into a sms::Message struct, assuming the fields go in a certain order
 /// This is the format of a typical line, with example values filled in
 /// <sms protocol="0" address="+12345678901" contact_name="John Smith" date="1234567890123" readable_date="Fri, 39 May 2015 04:13:14 MST" type="2" subject="null" body="Here&apos;s a message" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" />
 pub fn read_xml_line<'a>(line: &'a str) -> Message<'a> {
@@ -93,7 +93,7 @@ fn parse_body<'a>(unclean: &'a str) -> String {
 
 #[cfg(test)]
 mod test {
-    use SMS::parse_body;
+    use sms::parse_body;
     #[test]
     fn test_desanitization() {
         assert_eq!(parse_body("&apos;&amp;&quot;&lt;&gt;"), "\'&\"<>");
