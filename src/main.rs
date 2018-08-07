@@ -1,7 +1,41 @@
 pub mod sms;
 
 fn main() {
-    let xml_line = r#" <sms protocol="0" address="+12345678901" contact_name="John Smith" date="1234567890123" readable_date="Fri, 39 May 2015 04:13:14 MST" type="2" subject="null" body="Here&apos;s a message" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" />"#;
-    let test_message: sms::Message = sms::read_xml_line(xml_line);
-    println!("{:#?}", test_message);
+    let args: Vec<String> = std::env::args().collect();
+    if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
+        print_help();
+    }
+    else if args.contains(&"-v".to_string()) || args.contains(&"--version".to_string()) {
+        print_version();
+    }
+    else if args.len() <= 1 {
+        print_help();
+    }
+    else {
+        analyze(args);
+    }
+
+    // println!("{:#?}", args);
+}
+
+fn print_help() {
+        println!("Help!"); // TODO
+}
+
+fn print_version() {
+    let name = env!("CARGO_PKG_NAME");
+    let version = env!("CARGO_PKG_VERSION");
+    let authors = env!("CARGO_PKG_AUTHORS");
+    println!("{name} {version}", name=name, version=version);
+    println!("License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>.");
+    println!("There is NO WARRANTY, to the extent permitted by law.");
+    println!();
+    println!("Written by {authors}.", authors=authors);
+}
+
+fn analyze(args: Vec<String>) {
+    let filename = args.get(args.len() - 1).unwrap();
+    println!("You asked to analyze {}", filename);
+    // TODO
+>>>>>>> 652b851... Added handling of command arguments. Help and Version are supported.
 }
