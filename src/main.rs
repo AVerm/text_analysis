@@ -1,4 +1,5 @@
 pub mod sms;
+use sms::{Message, Contact};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -12,7 +13,7 @@ fn main() {
         print_help();
     }
     else {
-        analyze(args);
+        let contacts = analyze(args);
     }
 
     // println!("{:#?}", args);
@@ -33,9 +34,9 @@ fn print_version() {
     println!("Written by {authors}.", authors=authors);
 }
 
-fn analyze(args: Vec<String>) {
+fn analyze(args: Vec<String>) -> Vec<Contact> {
     let filename = args.get(args.len() - 1).unwrap();
-    println!("You asked to analyze {}", filename);
+    let contacts: Vec<Contact> = Vec::new();
     // TODO
->>>>>>> 652b851... Added handling of command arguments. Help and Version are supported.
+    contacts
 }
