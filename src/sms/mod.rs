@@ -1,19 +1,29 @@
 #[derive(Debug)]
 pub struct Message<'a> {
-    protocol: u32,
-    address: &'a str,
-    contact_name: &'a str,
-    date: i64,
-    readable_date: &'a str,
-    type_: u32,
-    subject: &'a str,
-    body: String,
-    toa: &'a str,
-    sc_toa: &'a str,
-    service_center: &'a str,
-    read: bool,
-    status: i32,
-    locked: bool,
+    pub protocol: u32,
+    pub address: &'a str, /// The number the message was sent to or from
+    pub contact_name: &'a str, /// The name of the contact, null if not present
+    pub date: i64, /// Seconds since 1970-01-01 00:00:00 UTC but the last 3 digits appear to be decimal seconds
+    pub readable_date: &'a str, /// A human readable date such as "Sat, 18 Aug 2018 12:57:13 MST"
+    pub type_: u32, /// Either 1 or 2. A message sent from self to other is 2, a message sent from other to self is 1 (recieved = 1, sent = 2)
+    pub subject: &'a str,
+    pub body: String, /// The actual message sent
+    pub toa: &'a str,
+    pub sc_toa: &'a str,
+    pub service_center: &'a str,
+    pub read: bool,
+    pub status: i32,
+    pub locked: bool,
+}
+
+#[derive(Debug)]
+pub struct Contact {
+    pub address: String,
+    pub contact_name: String,
+    pub count_to: usize,
+    pub length_to: usize,
+    pub count_from: usize,
+    pub length_from: usize,
 }
 
 /// Turns an xml line into a sms::Message struct, assuming the fields go in a certain order
