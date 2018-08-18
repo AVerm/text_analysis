@@ -1,5 +1,7 @@
 pub mod sms;
 use sms::{Message, Contact};
+use std::io::{BufReader, BufRead};
+use std::fs::File;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -36,7 +38,21 @@ fn print_version() {
 
 fn analyze(args: Vec<String>) -> Vec<Contact> {
     let filename = args.get(args.len() - 1).unwrap();
-    let contacts: Vec<Contact> = Vec::new();
-    // TODO
+    let mut contacts: Vec<Contact> = Vec::new();
+
+    let file = File::open(filename).unwrap();
+    let reader = BufReader::new(file);
+    
+    for line in reader.lines() {
+        let line = line.unwrap();
+        if line.starts_with(" <sms ") {
+            let message = sms::read_xml_line(&line);
+            record(message, &mut contacts);
+        }
+    }
     contacts
+}
+
+fn record(message: Message, contacts: &mut Vec<Contact>) {
+    ()
 }
