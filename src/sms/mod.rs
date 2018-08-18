@@ -16,7 +16,7 @@ pub struct Message<'a> {
     pub locked: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Contact {
     pub address: String,
     pub contact_name: String,

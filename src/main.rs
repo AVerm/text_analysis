@@ -16,6 +16,11 @@ fn main() {
     }
     else {
         let contacts = analyze(args);
+        for contact in contacts {
+            println!("{name} ({number})", name=contact.contact_name, number=contact.address);
+            println!("\tTo   (Messsages/Chars): {message_to}/{chars_to}", message_to=contact.count_to, chars_to=contact.length_to);
+            println!("\tFrom (Messsages/Chars): {message_from}/{chars_from}", message_from=contact.count_from, chars_from=contact.length_from);
+        }
     }
 
     // println!("{:#?}", args);
@@ -54,5 +59,33 @@ fn analyze(args: Vec<String>) -> Vec<Contact> {
 }
 
 fn record(message: Message, contacts: &mut Vec<Contact>) {
-    ()
+    let index = contacts.iter().rposition(|ref c| c.address == message.address); // Use r position because most recently used contacts tend to be at the end
+
+    match index {
+        Some(n) => {
+            let contact = contacts.remove(n);
+            contacts.push (
+                Contact {
+                    address:      contact.address,
+                    contact_name: contact.contact_name,
+                    count_to:     contact.count_to    + if message.type_ == 2 {0} else {1},
+                    length_to:    contact.length_to   + if message.type_ == 2 {0} else {message.body.chars().count()},
+                    count_from:   contact.count_from  + if message.type_ == 1 {1} else {0},
+                    length_from:  contact.length_from + if message.type_ == 1 {message.body.chars().count()} else {0},
+                }
+            );
+        }
+        None => {
+            contacts.push (
+                Contact {
+                    address:      message.address.to_string(),
+                    contact_name: message.contact_name.to_string(),
+                    count_to:     if message.type_ == 2 {0} else {1},
+                    length_to:    if message.type_ == 2 {0} else {message.body.chars().count()},
+                    count_from:   if message.type_ == 1 {1} else {0},
+                    length_from:  if message.type_ == 1 {message.body.chars().count()} else {0},
+                }
+            )
+        }
+    }
 }
