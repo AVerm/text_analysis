@@ -50,7 +50,10 @@ fn analyze<R: BufRead>(reader: R) -> Vec<Contact> {
         let line = line.unwrap();
         if line.trim_left().starts_with("<sms ") {
             let message = Message::read_from_xml(&line);
-            record(message, &mut contacts);
+            match message {
+                Ok(msg) => record(msg, &mut contacts),
+                Err(err) => eprintln!("{}", err),
+            }
         }
     }
     contacts

@@ -1,3 +1,5 @@
+use std::error::Error;
+
 #[derive(Debug)]
 pub struct Message<'a> {
     pub protocol: u32,
@@ -30,7 +32,7 @@ impl<'m> Message<'m> {
     /// Turns an xml line into a sms::Message struct, assuming the fields go in a certain order
     /// This is the format of a typical line, with example values filled in
     /// <sms protocol="0" address="+12345678901" contact_name="John Smith" date="1234567890123" readable_date="Fri, 39 May 2015 04:13:14 MST" type="2" subject="null" body="Here&apos;s a message" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" />
-    pub fn read_from_xml<'a>(line: &'a str) -> Message<'a> {
+    pub fn read_from_xml<'a>(line: &'a str) -> Result<Message<'a>, Box<Error>> {
         let mut fields = line.trim().trim_left_matches("<sms") // Now it is just the fields and the close tag
             .split("\"")
             .map(|field| field.trim()) // Breaks up so that every field name is followed by its contents
@@ -45,21 +47,21 @@ impl<'m> Message<'m> {
             }
         }
 
-        let protocol       = get_field(&mut fields, "protocol").parse::<u32>().unwrap();
+        let protocol       = get_field(&mut fields, "protocol").parse::<u32>()?;
         let address        = get_field(&mut fields, "address");
         let contact_name   = get_field(&mut fields, "contact_name");
-        let date           = get_field(&mut fields, "date").parse().unwrap();
+        let date           = get_field(&mut fields, "date").parse()?;
         let readable_date  = get_field(&mut fields, "readable_date");
-        let type_          = get_field(&mut fields, "type").parse().unwrap();
+        let type_          = get_field(&mut fields, "type").parse()?;
         let subject        = get_field(&mut fields, "subject");
         let body           = desanitize(get_field(&mut fields, "body"));
         let toa            = get_field(&mut fields, "toa");
         let sc_toa         = get_field(&mut fields, "sc_toa");
         let service_center = get_field(&mut fields, "service_center");
-        let read           = get_field(&mut fields, "read").parse::<i32>().unwrap()==1;
-        let status         = get_field(&mut fields, "status").parse::<i32>().unwrap();
-        let locked         = get_field(&mut fields, "locked").parse::<i32>().unwrap()==1;
-        Message {protocol, address, contact_name, date, readable_date, type_, subject, body, toa, sc_toa, service_center, read, status, locked}
+        let read           = get_field(&mut fields, "read").parse::<i32>()?==1;
+        let status         = get_field(&mut fields, "status").parse::<i32>()?;
+        let locked         = get_field(&mut fields, "locked").parse::<i32>()?==1;
+        Ok(Message {protocol, address, contact_name, date, readable_date, type_, subject, body, toa, sc_toa, service_center, read, status, locked})
     }
 }
 
