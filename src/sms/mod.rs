@@ -63,6 +63,30 @@ impl<'m> Message<'m> {
     }
 }
 
+impl Contact {
+    pub fn new(contact_name: &str, address: &str) -> Contact {
+        Contact {
+            address: address.to_owned(),
+            contact_name: contact_name.to_owned(),
+            count_to: 0,
+            length_to: 0,
+            count_from: 0,
+            length_from: 0,
+        }
+    }
+
+    pub fn record(self, message: Message) -> Contact {
+                Contact {
+                    address:      self.address,
+                    contact_name: self.contact_name,
+                    count_to:     self.count_to    + if message.type_ == 2 {1} else {0},
+                    length_to:    self.length_to   + if message.type_ == 2 {message.body.chars().count()} else {0},
+                    count_from:   self.count_from  + if message.type_ == 1 {1} else {0},
+                    length_from:  self.length_from + if message.type_ == 1 {message.body.chars().count()} else {0},
+                }
+    }
+}
+
 /// Cleans a message body, desanitizing it
 /// This means changing numeric character references to their plain representation
 /// &apos; --> '

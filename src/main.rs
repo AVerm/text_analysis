@@ -57,33 +57,10 @@ fn analyze<R: BufRead>(reader: R) -> Vec<Contact> {
 }
 
 fn record(message: Message, contacts: &mut Vec<Contact>) {
-    let index = contacts.iter().rposition(|ref c| c.address == message.address); // Use r position because most recently used contacts tend to be at the end
-
-    match index {
-        Some(n) => {
-            let contact = contacts.remove(n);
-            contacts.push (
-                Contact {
-                    address:      contact.address,
-                    contact_name: contact.contact_name,
-                    count_to:     contact.count_to    + if message.type_ == 2 {1} else {0},
-                    length_to:    contact.length_to   + if message.type_ == 2 {message.body.chars().count()} else {0},
-                    count_from:   contact.count_from  + if message.type_ == 1 {1} else {0},
-                    length_from:  contact.length_from + if message.type_ == 1 {message.body.chars().count()} else {0},
-                }
-            );
-        }
-        None => {
-            contacts.push (
-                Contact {
-                    address:      message.address.to_string(),
-                    contact_name: message.contact_name.to_string(),
-                    count_to:     if message.type_ == 2 {1} else {0},
-                    length_to:    if message.type_ == 2 {message.body.chars().count()} else {0},
-                    count_from:   if message.type_ == 1 {1} else {0},
-                    length_from:  if message.type_ == 1 {message.body.chars().count()} else {0},
-                }
-            )
-        }
-    }
+    let index = contacts.iter().rposition(|ref contact| contact.address == message.address); // Use r position because most recently used contacts tend to be at the end
+    let contact = match index {
+        Some(n) => contacts.remove(n),
+        None => Contact::new(message.contact_name, message.address),
+    };
+    contacts.push(contact.record(message));
 }
