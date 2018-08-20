@@ -52,7 +52,7 @@ impl<'m> Message<'m> {
         let readable_date  = get_field(&mut fields, "readable_date");
         let type_          = get_field(&mut fields, "type").parse().unwrap();
         let subject        = get_field(&mut fields, "subject");
-        let body           = parse_body(get_field(&mut fields, "body"));
+        let body           = desanitize(get_field(&mut fields, "body"));
         let toa            = get_field(&mut fields, "toa");
         let sc_toa         = get_field(&mut fields, "sc_toa");
         let service_center = get_field(&mut fields, "service_center");
@@ -96,7 +96,7 @@ impl Contact {
 /// &gt;   --> >
 /// TODO: Add support for generic numerical references (&#10:; --> Character code 10)
 /// assert_eq!(parse_body("&apos;&amp;&quot;&lt;&gt;"), "\'&\"<>");
-fn parse_body<'a>(unclean: &'a str) -> String {
+fn desanitize<'a>(unclean: &'a str) -> String {
     // Create a String to hold the cleaned body
     let mut clean: String = "".to_string();
     // Reserve as many characters as needed to hold the unclean. No characters
