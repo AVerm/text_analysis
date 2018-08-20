@@ -5,14 +5,14 @@ use std::fs::File;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
+    if args.len() <= 1 {
+        print_help();
+    }
+    else if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
         print_help();
     }
     else if args.contains(&"-v".to_string()) || args.contains(&"--version".to_string()) {
         print_version();
-    }
-    else if args.len() <= 1 {
-        print_help();
     }
     else {
         let contacts = analyze(args);
