@@ -30,21 +30,34 @@ pub struct Contact {
 /// This is the format of a typical line, with example values filled in
 /// <sms protocol="0" address="+12345678901" contact_name="John Smith" date="1234567890123" readable_date="Fri, 39 May 2015 04:13:14 MST" type="2" subject="null" body="Here&apos;s a message" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" />
 pub fn read_xml_line<'a>(line: &'a str) -> Message<'a> {
-    let line_as_vec = line.split("\"").collect::<Vec <&str>>();
-    let protocol       = line_as_vec[1].parse().unwrap();
-    let address        = line_as_vec[3];
-    let contact_name   = line_as_vec[5];
-    let date           = line_as_vec[7].parse().unwrap();
-    let readable_date  = line_as_vec[9];
-    let type_          = line_as_vec[11].parse().unwrap();
-    let subject        = line_as_vec[13];
-    let body           = parse_body(line_as_vec[15]);
-    let toa            = line_as_vec[17];
-    let sc_toa         = line_as_vec[19];
-    let service_center = line_as_vec[21];
-    let read           = line_as_vec[23].parse::<i32>().unwrap()==1;
-    let status         = line_as_vec[25].parse().unwrap();
-    let locked         = line_as_vec[27].parse::<i32>().unwrap()==1;
+    let mut fields = line.trim().trim_left_matches("<sms") // Now it is just the fields and the close tag
+        .split("\"")
+        .map(|field| field.trim()) // Breaks up so that every field name is followed by its contents
+        .collect::<Vec<&str>>();
+
+    fn get_field<'a>(fields: &mut Vec<&'a str>, label: &str) -> &'a str
+    {
+        let index = (&fields).iter().position(|ref field| label == field.trim_right_matches("="));
+        match index {
+            Some(n) => fields[n + 1],
+            None    => "0", // Clean this up later
+        }
+    }
+
+    let protocol       = get_field(&mut fields, "protocol").parse::<u32>().unwrap();
+    let address        = get_field(&mut fields, "address");
+    let contact_name   = get_field(&mut fields, "contact_name");
+    let date           = get_field(&mut fields, "date").parse().unwrap();
+    let readable_date  = get_field(&mut fields, "readable_date");
+    let type_          = get_field(&mut fields, "type").parse().unwrap();
+    let subject        = get_field(&mut fields, "subject");
+    let body           = parse_body(get_field(&mut fields, "body"));
+    let toa            = get_field(&mut fields, "toa");
+    let sc_toa         = get_field(&mut fields, "sc_toa");
+    let service_center = get_field(&mut fields, "service_center");
+    let read           = get_field(&mut fields, "read").parse::<i32>().unwrap()==1;
+    let status         = get_field(&mut fields, "status").parse::<i32>().unwrap();
+    let locked         = get_field(&mut fields, "locked").parse::<i32>().unwrap()==1;
     Message {protocol, address, contact_name, date, readable_date, type_, subject, body, toa, sc_toa, service_center, read, status, locked}
 }
 

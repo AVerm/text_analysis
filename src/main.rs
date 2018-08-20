@@ -22,8 +22,6 @@ fn main() {
             println!("\tFrom (Messsages/Chars): {message_from}/{chars_from}", message_from=contact.count_from, chars_from=contact.length_from);
         }
     }
-
-    // println!("{:#?}", args);
 }
 
 fn print_help() {
@@ -50,7 +48,7 @@ fn analyze(args: Vec<String>) -> Vec<Contact> {
     
     for line in reader.lines() {
         let line = line.unwrap();
-        if line.starts_with(" <sms ") {
+        if line.trim_left().starts_with("<sms ") {
             let message = sms::read_xml_line(&line);
             record(message, &mut contacts);
         }
@@ -68,8 +66,8 @@ fn record(message: Message, contacts: &mut Vec<Contact>) {
                 Contact {
                     address:      contact.address,
                     contact_name: contact.contact_name,
-                    count_to:     contact.count_to    + if message.type_ == 2 {0} else {1},
-                    length_to:    contact.length_to   + if message.type_ == 2 {0} else {message.body.chars().count()},
+                    count_to:     contact.count_to    + if message.type_ == 2 {1} else {0},
+                    length_to:    contact.length_to   + if message.type_ == 2 {message.body.chars().count()} else {0},
                     count_from:   contact.count_from  + if message.type_ == 1 {1} else {0},
                     length_from:  contact.length_from + if message.type_ == 1 {message.body.chars().count()} else {0},
                 }
@@ -80,8 +78,8 @@ fn record(message: Message, contacts: &mut Vec<Contact>) {
                 Contact {
                     address:      message.address.to_string(),
                     contact_name: message.contact_name.to_string(),
-                    count_to:     if message.type_ == 2 {0} else {1},
-                    length_to:    if message.type_ == 2 {0} else {message.body.chars().count()},
+                    count_to:     if message.type_ == 2 {1} else {0},
+                    length_to:    if message.type_ == 2 {message.body.chars().count()} else {0},
                     count_from:   if message.type_ == 1 {1} else {0},
                     length_from:  if message.type_ == 1 {message.body.chars().count()} else {0},
                 }
