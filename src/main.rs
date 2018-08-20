@@ -49,7 +49,7 @@ fn analyze(args: Vec<String>) -> Vec<Contact> {
     for line in reader.lines() {
         let line = line.unwrap();
         if line.trim_left().starts_with("<sms ") {
-            let message = sms::read_xml_line(&line);
+            let message = sms::Message::read_from_xml(&line);
             record(message, &mut contacts);
         }
     }
