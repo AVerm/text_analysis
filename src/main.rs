@@ -15,7 +15,11 @@ fn main() {
         print_version();
     }
     else {
-        let contacts = analyze(args);
+        let filename = args.get(args.len() - 1).unwrap();
+        let file = File::open(filename).unwrap();
+        let reader = BufReader::new(file);
+    
+        let contacts = analyze(reader);
         for contact in contacts {
             println!("{name} ({number})", name=contact.contact_name, number=contact.address);
             println!("\tTo   (Messsages/Chars): {message_to}/{chars_to}", message_to=contact.count_to, chars_to=contact.length_to);
@@ -39,17 +43,13 @@ fn print_version() {
     println!("Written by {authors}.", authors=authors);
 }
 
-fn analyze(args: Vec<String>) -> Vec<Contact> {
-    let filename = args.get(args.len() - 1).unwrap();
+fn analyze<R: BufRead>(reader: R) -> Vec<Contact> {
     let mut contacts: Vec<Contact> = Vec::new();
 
-    let file = File::open(filename).unwrap();
-    let reader = BufReader::new(file);
-    
     for line in reader.lines() {
         let line = line.unwrap();
         if line.trim_left().starts_with("<sms ") {
-            let message = sms::Message::read_from_xml(&line);
+            let message = Message::read_from_xml(&line);
             record(message, &mut contacts);
         }
     }
