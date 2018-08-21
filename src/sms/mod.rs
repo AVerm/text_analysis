@@ -38,29 +38,32 @@ impl<'m> Message<'m> {
             .map(|field| field.trim()) // Breaks up so that every field name is followed by its contents
             .collect::<Vec<&str>>();
 
-        fn get_field<'a>(fields: &mut Vec<&'a str>, label: &str) -> &'a str
+        fn get_field<'a>(fields: &mut Vec<&'a str>, label: &str) -> Result<&'a str, Box<Error>>
         {
             let index = (&fields).iter().position(|ref field| label == field.trim_right_matches("="));
-            match index {
-                Some(n) => fields[n + 1],
-                None    => "0", // Clean this up later
-            }
+            Ok(
+                fields[
+                    index.ok_or_else(
+                        || format!("Field {} not found", label)
+                    )? + 1
+                ]
+            )
         }
 
-        let protocol       = get_field(&mut fields, "protocol").parse::<u32>()?;
-        let address        = get_field(&mut fields, "address");
-        let contact_name   = get_field(&mut fields, "contact_name");
-        let date           = get_field(&mut fields, "date").parse()?;
-        let readable_date  = get_field(&mut fields, "readable_date");
-        let type_          = get_field(&mut fields, "type").parse()?;
-        let subject        = get_field(&mut fields, "subject");
-        let body           = desanitize(get_field(&mut fields, "body"));
-        let toa            = get_field(&mut fields, "toa");
-        let sc_toa         = get_field(&mut fields, "sc_toa");
-        let service_center = get_field(&mut fields, "service_center");
-        let read           = get_field(&mut fields, "read").parse::<i32>()?==1;
-        let status         = get_field(&mut fields, "status").parse::<i32>()?;
-        let locked         = get_field(&mut fields, "locked").parse::<i32>()?==1;
+        let protocol       = get_field(&mut fields, "protocol")?.parse::<u32>()?;
+        let address        = get_field(&mut fields, "address")?;
+        let contact_name   = get_field(&mut fields, "contact_name")?;
+        let date           = get_field(&mut fields, "date")?.parse()?;
+        let readable_date  = get_field(&mut fields, "readable_date")?;
+        let type_          = get_field(&mut fields, "type")?.parse()?;
+        let subject        = get_field(&mut fields, "subject")?;
+        let body           = desanitize(get_field(&mut fields, "body")?); // TODO: There may be an error, needs to be fixed
+        let toa            = get_field(&mut fields, "toa")?;
+        let sc_toa         = get_field(&mut fields, "sc_toa")?;
+        let service_center = get_field(&mut fields, "service_center")?;
+        let read           = get_field(&mut fields, "read")?.parse::<i32>()?==1;
+        let status         = get_field(&mut fields, "status")?.parse::<i32>()?;
+        let locked         = get_field(&mut fields, "locked")?.parse::<i32>()?==1;
         Ok(Message {protocol, address, contact_name, date, readable_date, type_, subject, body, toa, sc_toa, service_center, read, status, locked})
     }
 }
