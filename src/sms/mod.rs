@@ -1,6 +1,5 @@
 use std::error::Error;
 
-#[derive(Debug)]
 pub struct Message<'a> {
     pub protocol: u32,
     pub address: &'a str, /// The number the message was sent to or from
@@ -18,7 +17,6 @@ pub struct Message<'a> {
     pub locked: bool,
 }
 
-#[derive(Debug, PartialEq)]
 pub struct Contact {
     pub address: String,
     pub contact_name: String,
