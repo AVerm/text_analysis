@@ -22,7 +22,10 @@ fn main() {
     }
     else {
         let filename = args.get(args.len() - 1).unwrap(); // Just assume that the first argument is the filename. This is a TODO for sure
-        let file = File::open(filename).unwrap(); // TODO: Add error handling here
+        let file = match File::open(filename) {
+            Ok(f)    => f,
+            Err(err) => panic!("File at {} could not be opened for reading\nDetails: {}", filename, err),
+        };
         let reader = BufReader::new(file); // Using a reader with the BufRead trait lets the function be more generic
     
         let contacts = analyze(reader);
