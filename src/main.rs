@@ -6,6 +6,12 @@ use std::fs::File;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() <= 1 {
+        // In the future, I would like it if this program could check for
+        // standard input and use that instead of a file if there were no
+        // additional arguments. This would mean ars.len() == 1 (the first
+        // argument is the program name!), but it probably makes sense to do a
+        // check for standard input before any of this so the conditionals can
+        // still be generic over 1 and 0
         print_help();
     }
     else if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
@@ -15,11 +21,12 @@ fn main() {
         print_version();
     }
     else {
-        let filename = args.get(args.len() - 1).unwrap();
-        let file = File::open(filename).unwrap();
-        let reader = BufReader::new(file);
+        let filename = args.get(args.len() - 1).unwrap(); // Just assume that the first argument is the filename. This is a TODO for sure
+        let file = File::open(filename).unwrap(); // TODO: Add error handling here
+        let reader = BufReader::new(file); // Using a reader with the BufRead trait lets the function be more generic
     
         let contacts = analyze(reader);
+        // May want to pack this into a function (accepting a function that is applied to each item!) later
         for contact in contacts {
             println!("{name} ({number})", name=contact.contact_name, number=contact.address);
             println!("\tTo   (Messsages/Chars): {message_to}/{chars_to}", message_to=contact.count_to, chars_to=contact.length_to);
@@ -46,16 +53,18 @@ fn print_version() {
 fn analyze<R: BufRead>(reader: R) -> Vec<Contact> {
     let mut contacts: Vec<Contact> = Vec::new();
 
+    let mut error_count = 0;
     for line in reader.lines() {
         let line = line.unwrap();
         if line.trim_left().starts_with("<sms ") {
             let message = Message::read_from_xml(&line);
             match message {
                 Ok(msg) => record(msg, &mut contacts),
-                Err(err) => eprintln!("{}", err),
+                Err(_err) => error_count += 1,
             }
         }
     }
+    eprintln!("{} errors while reading", error_count);
     contacts
 }
 
