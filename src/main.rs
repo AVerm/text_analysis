@@ -8,10 +8,11 @@ fn main() {
     if args.len() <= 1 {
         // In the future, I would like it if this program could check for
         // standard input and use that instead of a file if there were no
-        // additional arguments. This would mean ars.len() == 1 (the first
+        // additional arguments. This would mean args.len() == 1 (the first
         // argument is the program name!), but it probably makes sense to do a
         // check for standard input before any of this so the conditionals can
         // still be generic over 1 and 0
+        println!("Found <= 1 arguments!");
         print_help();
     }
     else if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
@@ -21,7 +22,7 @@ fn main() {
         print_version();
     }
     else {
-        let filename = args.get(args.len() - 1).unwrap(); // Just assume that the first argument is the filename. This is a TODO for sure
+        let filename = &args[args.len() - 1]; // Just assume that the first argument is the filename. This is a TODO for sure
         let file = match File::open(filename) {
             Ok(f)    => f,
             Err(err) => panic!("File at {} could not be opened for reading\nDetails: {}", filename, err),
@@ -62,7 +63,7 @@ fn analyze<R: BufRead>(reader: R) -> Vec<Contact> {
         if line.trim_left().starts_with("<sms ") {
             let message = Message::read_from_xml(&line);
             match message {
-                Ok(msg) => record(msg, &mut contacts),
+                Ok(msg) => record(&msg, &mut contacts),
                 Err(_err) => error_count += 1,
             }
         }
@@ -71,11 +72,11 @@ fn analyze<R: BufRead>(reader: R) -> Vec<Contact> {
     contacts
 }
 
-fn record(message: Message, contacts: &mut Vec<Contact>) {
+fn record(message: &Message, contacts: &mut Vec<Contact>) {
     let index = contacts.iter().rposition(|ref contact| contact.address == message.address); // Use r position because most recently used contacts tend to be at the end
     let contact = match index {
         Some(n) => contacts.remove(n),
         None => Contact::new(message.contact_name, message.address),
     };
-    contacts.push(contact.record(message));
+    contacts.push(contact.record(&message));
 }

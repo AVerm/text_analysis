@@ -32,13 +32,13 @@ impl<'m> Message<'m> {
     /// <sms protocol="0" address="+12345678901" contact_name="John Smith" date="1234567890123" readable_date="Fri, 39 May 2015 04:13:14 MST" type="2" subject="null" body="Here&apos;s a message" toa="null" sc_toa="null" service_center="null" read="1" status="-1" locked="0" />
     pub fn read_from_xml<'a>(line: &'a str) -> Result<Message<'a>, Box<Error>> {
         let mut fields = line.trim().trim_left_matches("<sms") // Now it is just the fields and the close tag
-            .split("\"")
+            .split('"')
             .map(|field| field.trim()) // Breaks up so that every field name is followed by its contents
             .collect::<Vec<&str>>();
 
         fn get_field<'a>(fields: &mut Vec<&'a str>, label: &str) -> Result<&'a str, Box<Error>>
         {
-            let index = (&fields).iter().position(|ref field| label == field.trim_right_matches("="));
+            let index = (&fields).iter().position(|ref field| label == field.trim_right_matches('='));
             Ok(
                 fields[
                     index.ok_or_else(
@@ -78,7 +78,7 @@ impl Contact {
         }
     }
 
-    pub fn record(self, message: Message) -> Contact {
+    pub fn record(self, message: &Message) -> Contact {
                 Contact {
                     address:      self.address,
                     contact_name: self.contact_name,
