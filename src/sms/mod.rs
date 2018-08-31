@@ -109,35 +109,30 @@ fn desanitize<'a>(unclean: &'a str) -> String {
     //Body start
     let mut chars = unclean.chars();
     let mut buf = "".to_string();
-    loop {
-        match chars.next() {
-            Some(current) => {
-                if current == '&' {
-                    buf = "&".to_string();
-                }
-                else if current == ';' {
-                    clean.push(
-                        match &*buf {
-                            "&apos" => '\'',
-                            "&amp"  => '&',
-                            "&gt"   => '>',
-                            "&lt"   => '<',
-                            "&quot" => '\"',
-                            _       => '?',
-                            //_       => buf.tail() TODO
-                        }
-                    );
-                    buf = "".to_string();
-                }
-                else if !buf.is_empty() {
-                    buf.push(current);
-                }
-                else {
-                    clean.push(current);
-                }
-            },
-            None => break,
-        }
+    while let Some(current) = chars.next() {
+            if current == '&' {
+                buf = "&".to_string();
+            }
+            else if current == ';' {
+                clean.push(
+                    match &*buf {
+                        "&apos" => '\'',
+                        "&amp"  => '&',
+                        "&gt"   => '>',
+                        "&lt"   => '<',
+                        "&quot" => '\"',
+                        _       => '?',
+                        //_       => buf.tail() TODO
+                    }
+                );
+                buf = "".to_string();
+            }
+            else if !buf.is_empty() {
+                buf.push(current);
+            }
+            else {
+                clean.push(current);
+            }
     }
     clean.shrink_to_fit();
     clean
