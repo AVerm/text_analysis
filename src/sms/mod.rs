@@ -99,7 +99,7 @@ impl Contact {
 /// &gt;   --> >
 /// TODO: Add support for generic numerical references (&#10:; --> Character code 10)
 /// assert_eq!(parse_body("&apos;&amp;&quot;&lt;&gt;"), "\'&\"<>");
-fn desanitize<'a>(unclean: &'a str) -> String {
+fn desanitize(unclean: &str) -> String {
     // Create a String to hold the cleaned body
     let mut clean: String = "".to_string();
     // Reserve as many characters as needed to hold the unclean. No characters
