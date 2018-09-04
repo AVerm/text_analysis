@@ -107,9 +107,8 @@ fn desanitize(unclean: &str) -> String {
     // extra allocations to slow down additions.
     clean.reserve(unclean.chars().count());
     //Body start
-    let mut chars = unclean.chars();
     let mut buf = "".to_string();
-    while let Some(current) = chars.next() {
+    for current in unclean.chars() {
             if current == '&' {
                 buf = "&".to_string();
             }
