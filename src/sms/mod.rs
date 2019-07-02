@@ -139,9 +139,9 @@ fn desanitize(unclean: &str) -> String {
 
 #[cfg(test)]
 mod test {
-    use sms::message::parse_body;
+    use sms::desanitize;
     #[test]
     fn test_desanitization() {
-        assert_eq!(parse_body("&apos;&amp;&quot;&lt;&gt;"), "\'&\"<>");
+        assert_eq!(desanitize("&apos;&amp;&quot;&lt;&gt;"), "\'&\"<>");
     }
 }
